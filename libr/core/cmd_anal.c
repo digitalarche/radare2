@@ -3811,6 +3811,9 @@ static int cmd_anal_fcn(RCore *core, const char *input) {
 						} else {
 							r_cons_printf ("%c 0x%08" PFMT64x " ", ref->type, ref->at);
 							switch (ref->type) {
+							case R_ANAL_REF_TYPE_NULL:
+								r_cons_printf ("0x%08" PFMT64x " ", ref->addr);
+								break;
 							case 'c':
 							case 'C':
 							case 'd':
@@ -3818,8 +3821,15 @@ static int cmd_anal_fcn(RCore *core, const char *input) {
 								r_core_cmdf (core, "pi 1 @ 0x%08"PFMT64x, ref->at);
 								break;
 							case 's':
-							//case 'd':
-								r_core_cmdf (core, "pxr 8 @ 0x%08"PFMT64x, ref->addr);
+								{
+									char *s = r_core_cmd_strf (core, "pxr 8 @ 0x%08"PFMT64x, ref->addr);
+									char *nl = strchr (s, '\n');
+									if (nl) {
+										*nl = 0;
+									}
+									r_cons_printf ("%s\n", s);
+									free (s);
+								}
 								break;
 							}
 						}
