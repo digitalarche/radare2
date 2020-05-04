@@ -467,6 +467,7 @@ static const char *help_msg_afv[] = {
 	"afvn", " [new_name] ([old_name])", "rename argument/local",
 	"afvt", " [name] [new_type]", "change type for given argument/local",
 	"afvf", "", "show BP relative stackframe variables",
+	"afvx", "", "show function variable xrefs",
 	"afv-", "([name])", "remove all or given var",
 	NULL
 };
@@ -1218,11 +1219,24 @@ static int var_cmd(RCore *core, const char *str) {
 	RAnalFunction *fcn = r_anal_get_fcn_in (core->anal, core->offset, -1);
 	/* Variable access CFvs = set fun var */
 	switch (str[0]) {
-	case '-':
-		// "afv"
+	case '-': // "afv-"
 		r_core_cmdf (core, "afvs-%s", str + 1);
 		r_core_cmdf (core, "afvb-%s", str + 1);
 		r_core_cmdf (core, "afvr-%s", str + 1);
+		return true;
+	case 'x': // "afvx"
+		{
+		RList *list = r_anal_get_functions_in (core->anal, core->offset);
+		if (list) {
+			r_cons_printf ("afvR\n");
+			r_core_cmd0 (core, "afvR");
+			r_cons_printf ("afvW\n");
+			r_core_cmd0 (core, "afvW");
+			r_list_free (list);
+		} else {
+			eprintf ("Cannot find function in 0x%08"PFMT64x"\n", core->offset);
+		}
+		}
 		return true;
 	case 'R': // "afvR"
 	case 'W': // "afvW"
@@ -7196,18 +7210,7 @@ static bool cmd_anal_refs(RCore *core, const char *input) {
 		free (ptr);
 	} break;
 	case 'v': // "axv"
-		{
-		RList *list = r_anal_get_functions_in (core->anal, core->offset);
-		if (list) {
-			r_cons_printf ("afvR\n");
-			r_core_cmd0 (core, "afvR");
-			r_cons_printf ("afvW\n");
-			r_core_cmd0 (core, "afvW");
-			r_list_free (list);
-		} else {
-			eprintf ("Cannot find function in 0x%08"PFMT64x"\n", core->offset);
-		}
-		}
+		r_core_cmd0 (core, "afvx");
 		break;
 	case 't': { // "axt"
 		RList *list = NULL;
