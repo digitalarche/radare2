@@ -3809,7 +3809,7 @@ static int cmd_anal_fcn(RCore *core, const char *input) {
 							pj_kn (pj, "to", ref->addr);
 							pj_end (pj);
 						} else {
-							r_cons_printf ("%c 0x%08" PFMT64x " ", ref->type, ref->at);
+							r_cons_printf ("%c 0x%08" PFMT64x " -> ", ref->type, ref->at);
 							switch (ref->type) {
 							case R_ANAL_REF_TYPE_NULL:
 								r_cons_printf ("0x%08" PFMT64x " ", ref->addr);
